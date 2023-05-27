@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  name              String
+  
+  avatar            String?
+  position	        Int?      @default(0) // 0: guest, 1: user, 2: vip, 100: admin
+
+  createdAt	        DateTime  @default(now())
+  updatedAt	        DateTime  @updatedAt
+  
+  writtenPosts	    Post[]    @relation(name:"writtenPost")
+  writtenComments	  Comment[] @relation(name:"writtenComment")
+
+  tokens	          Token[]
+}
+
+model Token {
+  id                Int       @id @default(autoincrement())
+  payload           String    @unique
+  createdAt	        DateTime  @default(now())
+  updatedAt	        DateTime  @updatedAt
+
+  user              User      @relation(fields:[userId], references:[id], onDelete: Cascade)
+  userId            Int
+  @@index([userId])
+}
+
+model Post {
+  id                Int       @id @default(autoincrement())
+  title             String
+  content           String
+  createdAt	        DateTime  @default(now())
+  updatedAt	        DateTime  @updatedAt
+
+  author            User      @relation(name:"writtenPost", fields:[authorId], references:[id])
+  authorId          Int
+  @@index([authorId])
+
+  comments          Comment[]
+}
+
+model Comment {
+  id                Int       @id @default(autoincrement())
+  content           String
+  createdAt	        DateTime  @default(now())
+  updatedAt	        DateTime  @updatedAt
+
+  author            User      @relation(name:"writtenComment", fields:[authorId], references:[id])
+  authorId          Int
+  @@index([authorId])
+  post              Post      @relation(fields:[postId], references:[id], onDelete: Cascade)
+  postId            Int
+  @@index([postId])
+}
+
