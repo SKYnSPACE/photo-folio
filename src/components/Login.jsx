@@ -138,19 +138,19 @@ export function Login() {
                   type="number"
                   autoComplete="token"
                   required
-                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 bg-white/5 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm"
+                  className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 bg-white/5 text-white placeholder-gray-500 focus:z-10 focus:border-sky-500 focus:outline-none focus:ring-sky-500 sm:text-sm"
                   placeholder="One-time Password"
                 />
               </div>
             </div>
 
 
-            <p className="text-center text-sm text-gray-600">
+            <p className="text-center text-sm text-gray-200">
               {/* <a href={data.link.toString()} target="_blank" className="font-medium text-sky-600 hover:text-sky-500">
                   &rarr;{' '}Check this Link{' '}&larr;
                   </a> */}
               {/* {' '}to see your access token. */}
-              Check your Email to see your one-time access token.
+              Check your Email for the one-time password.
             </p>
 
             <div>

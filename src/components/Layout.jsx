@@ -1,9 +1,12 @@
+import { useRouter } from "next/router";
+
 import { useId } from 'react'
 
 import { Intro, IntroFooter } from '@/components/Intro'
 import { Login } from '@/components/Login'
 import { StarField } from '@/components/StarField'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { ActionIcons } from "@/components/ActionIcons";
 
 function Timeline() {
   let id = useId()
@@ -90,11 +93,23 @@ function FixedSidebar({ main, footer }) {
 }
 
 export default function Layout({ children }) {
+  const router = useRouter();
+
+  // console.log(router.pathname);
   return (
     <>
-      <FixedSidebar main={<Login />} footer={<IntroFooter />} />
+
+
+      {router.pathname === '/enter' && <FixedSidebar main={<Login />} footer={<IntroFooter />} />}
+      {router.pathname === '/' && 
+      <>
+      <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
+      <ActionIcons /> 
+      </>
+      }
+      
       {/* @todo: ThemeToggle Icon to add moments / Sign-out */}
-      <ThemeToggle />
+      
       <div className="relative flex-auto">
         <Timeline />
         {/* <main className="space-y-20 py-20 sm:space-y-32 sm:py-32"> */}
