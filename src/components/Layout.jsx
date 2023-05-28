@@ -99,21 +99,31 @@ export default function Layout({ children }) {
   return (
     <>
 
-
-      {router.pathname === '/enter' && <FixedSidebar main={<Login />} footer={<IntroFooter />} />}
-      {router.pathname === '/' && 
-      <>
-      <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
-      <ActionIcons /> 
-      </>
+      {
+        router.pathname === '/enter' &&
+        <FixedSidebar main={<Login />} footer={<IntroFooter />} />
       }
-      
+      {
+        router.pathname === '/' &&
+        <>
+          <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
+        </>
+      }
+      {
+        router.pathname !== '/enter' &&
+        <ActionIcons />
+      }
+
       {/* @todo: ThemeToggle Icon to add moments / Sign-out */}
-      
+
       <div className="relative flex-auto">
-        <Timeline />
+        {
+          router.pathname !== '/create' &&
+          <Timeline />
+        }
+
         {/* <main className="space-y-20 py-20 sm:space-y-32 sm:py-32"> */}
-        <main className="space-y-20">
+        <main className="space-y-20 bg-gray-950">
           {children}
         </main>
       </div>

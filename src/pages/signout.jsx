@@ -24,7 +24,7 @@ export default function SignOut() {
 
     logout();
     console.log('Logged out.');
-    router.replace("/"); //router.push("/");
+    router.replace("/enter"); //router.push("/");
   },[logoutData, router])
 
 
