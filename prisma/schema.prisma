@@ -50,6 +50,10 @@ model Post {
   authorId          Int
   @@index([authorId])
 
+  originalDate      String
+  isVideo           Boolean   @default(false)
+  imageCount        Int       @default(0)
+
   comments          Comment[]
 }
 

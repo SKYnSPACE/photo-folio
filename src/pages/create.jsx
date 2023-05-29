@@ -9,6 +9,7 @@ import { format, parseISO } from "date-fns";
 
 
 import { PaperClipIcon, ExclamationTriangleIcon, StarIcon } from '@heroicons/react/20/solid';
+import { CalendarDaysIcon, ClockIcon, ArrowLongRightIcon } from '@heroicons/react/24/outline';
 
 
 import useMutation from "@/libs/frontend/useMutation";
@@ -27,6 +28,8 @@ const scrollToTop = () => {
     top: 0,
   })
 }
+
+
 export default function Submission() {
   const { data: seminarData, error: seminarDataError, isLoading: seminarDataIsLoading, mutate: mutateSeminarData } = useSWR(`/api/seminar`);
 
@@ -34,6 +37,9 @@ export default function Submission() {
   const titleLength = watch("title")?.length;
   const abstractLength = watch("abstract")?.length;
   const tagsLength = watch("tags")?.length;
+
+  const timeStampDate = watch("date");
+  const timeStampTime = watch("time");
 
   const [saveSubmission, { loading: submissionLoading, data: submissionData, error: submissionError }] = useMutation("/api/seminar/save");
   const [saveDraft, { loading: saveDraftLoading, data: saveDraftData, error: saveDraftError }] = useMutation("/api/seminar/saveDraft");
@@ -99,32 +105,31 @@ export default function Submission() {
 
     e.preventDefault();
 
-    const file = fileInput.files[0];
-    if (!file) return;
+    /** Files validation */
+    const validFiles = [];
+    for (let i = 0; i < fileInput.files.length; ++i) {
+      const file = fileInput.files[i];
 
-    //TODO: REMOVE file from the server when uploadedDraftFile is not null 
-    if (uploadedDraftFile) {
-      const deleteResponse = await fetch(`/api/seminar/delete?token=${uploadedDraftFile.name}&ext=${uploadedDraftFile.ext}`, {
-        method: 'DELETE'
-      })
-      // console.log(deleteResponse)
-    }
-    else if (seminarData?.mySeminarSubmission?.draftFile) {
-      const prevFile = seminarData?.mySeminarSubmission?.draftFile;
-      const indexOfLastDot = prevFile.lastIndexOf('.');
-      const fileName = prevFile.slice(0, indexOfLastDot); //name only (w/o extension)
-      const extension = prevFile.slice(indexOfLastDot + 1);
+      if (!file.type.startsWith("image")) {
+        alert(`File with idx: ${i} is invalid`);
+        continue;
+      }
 
-      const deleteResponse = await fetch(`/api/seminar/delete?token=${fileName}&ext=${extension}`, {
-        method: 'DELETE'
-      })
-      // console.log(deleteResponse)
+      validFiles.push(file);
     }
 
+    if (!validFiles.length) {
+      alert("No valid files were chosen");
+      return;
+    }
+
+
+    /** Uploading files to the server */
     try {
       let startAt = Date.now();
       let formData = new FormData();
-      formData.append("media", file);
+      validFiles.forEach((file) => formData.append("media", file));
+      // formData.append("media", file);
 
       const options = {
         headers: { "Content-Type": "multipart/form-data" },
@@ -145,9 +150,9 @@ export default function Submission() {
 
       const {
         data: { data },
-      } = await axios.post("/api/seminar/upload", formData, options);
+      } = await axios.post("/api/upload", formData, options);
 
-      // console.log("File was uploaded successfylly:", data);
+      console.log("File was uploaded successfylly:", data);
       setUploadedDraftFile({ name: data?.fileName, ext: data?.extension });
       saveDraft({ alias: seminarData?.mySeminarSubmission?.alias, draftFile: { name: data?.fileName, ext: data?.extension } });
 
@@ -358,9 +363,11 @@ export default function Submission() {
   }, [reviewRequestData])
 
   return (
-    <div className="p-10">
 
-      <form onSubmit={handleSubmit(onValid, onInvalid)} className="space-y-8 divide-y-2 divide-gray-300">
+    
+    <div className="py-16 px-10 mx-auto max-w-7xl">
+
+      <form onSubmit={handleSubmit(onValid, onInvalid)} className="bg-gray-900 p-4 shadow-sm ring-1 ring-gray-500 rounded-xl space-y-8 divide-y-2 divide-gray-300">
 
         <div className="space-y-8 divide-y-2 divide-gray-300 sm:space-y-5">
 
@@ -370,7 +377,7 @@ export default function Submission() {
 
           <div className="space-y-6 sm:space-y-5">
 
-            <div>
+            <div className="mt-6">
               <h3 className="text-2xl font-semibold leading-6 text-sky-500">Write</h3>
               <p className="mt-1 max-w-2xl text-sm text-gray-500">
                 This information will be displayed publicly so be careful what you share.
@@ -382,7 +389,7 @@ export default function Submission() {
 
             <div className="space-y-6 sm:space-y-5">
 
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-400 sm:pt-5">
                 <label htmlFor="title" className="block text-sm font-medium text-gray-200 sm:mt-px sm:pt-2">
                   Title {titleLength > 180 ? <span className="text-red-500">({titleLength}/180)</span> : <span>({titleLength}/180)</span>}
                 </label>
@@ -402,18 +409,68 @@ export default function Submission() {
                     required
                     disabled={seminarData?.mySeminarSubmission?.currentStage >= 3}
                     className={classNames(titleLength > 180 ? " text-red-500 focus:ring-2 focus:ring-inset focus:ring-red-500" : "text-white focus:ring-2 focus:ring-inset focus:ring-sky-500",
-                      "block w-full min-w-0 px-2 py-1.5 flex-1 rounded-md border-0 ring-1 ring-inset ring-white/20 bg-white/5 sm:text-sm")}
+                      "block w-full min-w-0 px-2 py-1.5 flex-1 rounded-md border-0 ring-1 ring-inset ring-white/30 bg-white/10 sm:text-sm")}
                     defaultValue={''}
                   />
                 </div>
               </div>
 
 
-<div>TODO:DateTime</div>
+              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-400 sm:pt-5">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-200 sm:mt-px sm:pt-2">
+                  Time Stamp
+                </label>
+                <div className="mt-1 sm:col-span-2 sm:mt-0">
+                  <div className="w-full">
+                    <div className="flex items-center justify-between space-x-4">
 
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+                      <div className="relative w-1/2 flex rounded-md shadow-sm">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <span className="text-white text-sm">DATE /</span>
+        </div>
+                        <input
+                          {...register("date", {
+                            required: "Date is required.",
+                          })}
+                          type="date"
+                          name="date"
+                          id="date"
+                          required
+                          className="block w-full flex-1 pl-14 rounded-md border-0 ring-1 ring-inset ring-white/30 bg-white/10 text-sm text-white focus:ring-2 focus:ring-inset focus:ring-sky-500"
+
+                        />
+                      </div>
+
+                      <div className="relative w-1/2 flex rounded-md shadow-sm">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <span className="text-white text-sm">TIME /</span>
+        </div>
+                        <input
+                          {...register("time", {
+                            required: "Time is required.",
+                          })}
+                          type="time"
+                          name="time"
+                          id="time"
+                          required
+                          className="block w-full flex-1 pl-14 rounded-md border-0 ring-1 ring-inset ring-white/30 bg-white/10 text-sm text-white focus:ring-2 focus:ring-inset focus:ring-sky-500"
+
+                        />
+                      </div>
+
+
+
+
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-400 sm:pt-5">
                 <label htmlFor="abstract" className="block text-sm font-medium text-gray-200 sm:mt-px sm:pt-2">
-                  Contents {abstractLength > 500 ? <span className="text-red-500">({abstractLength}/500)</span> : <span>({abstractLength}/500)</span>}
+                  Descriptions {abstractLength > 500 ? <span className="text-red-500">({abstractLength}/500)</span> : <span>({abstractLength}/500)</span>}
                 </label>
                 <div className="mt-1 sm:col-span-2 sm:mt-0">
                   <textarea
@@ -431,7 +488,7 @@ export default function Submission() {
                     required
                     disabled={seminarData?.mySeminarSubmission?.currentStage >= 3}
                     className={classNames(abstractLength > 500 ? " text-red-500 focus:ring-2 focus:ring-inset focus:ring-red-500" : "text-white focus:ring-2 focus:ring-inset focus:ring-sky-500",
-                      "block w-full min-w-0 px-2 py-1.5 flex-1 rounded-md border-0 ring-1 ring-inset ring-white/20 bg-white/5 sm:text-sm")}
+                      "block w-full min-w-0 px-2 py-1.5 flex-1 rounded-md border-0 ring-1 ring-inset ring-white/30 bg-white/10 sm:text-sm")}
                     defaultValue={''}
                   />
                   <p className="mt-2 text-sm text-gray-500">Write a few sentences about the presentation.</p>
@@ -439,28 +496,61 @@ export default function Submission() {
               </div>
 
 
-              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-                <label htmlFor="draft" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                  Presentation Material
+              <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-400 sm:pt-5">
+                <label htmlFor="draft" className="block text-sm font-medium text-gray-200 sm:mt-px sm:pt-2">
+                  Media
                 </label>
                 <div className="mt-1 sm:col-span-2 sm:mt-0">
 
 
-                  {seminarData?.mySeminarSubmission?.draftFile ?
-                    <div className="flex items-center justify-between py-3 pl-3 pr-4 text-sm">
-                      <div className="flex w-0 flex-1 items-center text-gray-500">
-                        <PaperClipIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
-                        <span className="ml-1 w-0 flex-1 truncate">{`${seminarData?.mySeminarSubmission?.alias}-draft.${seminarData?.mySeminarSubmission?.draftFile?.split(".").pop()}`}</span>
+                <div className="flex max-w-2xl justify-center rounded-md border-2 border-dashed border-gray-400 px-6 pt-5 pb-6">
+
+                    <div className="space-y-1 text-center">
+
+                      <div className="flex text-sm text-gray-400">
+                        <label
+                          htmlFor="draft"
+                          className="relative cursor-pointer rounded-md font-medium text-sky-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-sky-500 focus-within:ring-offset-2 hover:text-sky-500"
+                        >
+                          <span>Upload a new file</span>
+                          <input
+                            id="draft"
+                            name="draft"
+                            type="file" className="sr-only"
+                            onChange={onSelectedDraftFile}
+                            multiple
+                          />
+                        </label>
+                        {/* <p className="pl-1">or drag and drop</p> */}
+                        <p className="pl-1">(single file up to 200MB)</p>
                       </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <a href={`/uploads/seminar/${seminarData?.mySeminarSubmission?.draftFile}`}
-                          className="font-medium text-sky-600 hover:text-sky-500"
-                          download={`${seminarData?.mySeminarSubmission?.alias}-draft.${seminarData?.mySeminarSubmission?.draftFile?.split(".").pop()}`}>
-                          Download
-                        </a>
-                      </div>
+                      {/* <p className="text-xs text-gray-500">up to 200MB</p> */}
+
+                      <ProgressBarSimple progress={progress} remaining={remaining} />
+
+                      {progress != 100 ?
+                        <div className="text-sm text-center text-gray-400">
+                          <p>
+                            <span>Only supports single file upload.<br />Compress your materials if needed. </span>
+                          </p>
+                        </div>
+                        : <div className="text-sm text-center text-gray-400">
+                          {uploadedDraftFile ?
+                            <p>
+                              <span>Your token: </span>
+                              <a className="relative cursor-pointer rounded-md bg-white font-medium text-sky-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-sky-500 focus-within:ring-offset-2 hover:text-sky-500"
+                                href={`/uploads/seminar/${uploadedDraftFile.name}.${uploadedDraftFile.ext}`}
+                                download={`${seminarData?.mySeminarSubmission?.alias}-draft.${uploadedDraftFile.ext}`}>{uploadedDraftFile.name}</a> </p>
+                            : <></>}
+                          <span>Press save to complete <br />the draft submission.</span>
+                        </div>
+                      }
+
                     </div>
-                    : <></>}
+                  </div>
+
+
+
 
                 </div>
               </div>
@@ -500,7 +590,7 @@ export default function Submission() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>processing...</span>
-                : <span>Save</span>}
+                : <span>Post</span>}
 
 
             </button>
