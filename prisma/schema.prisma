@@ -42,7 +42,7 @@ model Token {
 model Post {
   id                Int       @id @default(autoincrement())
   title             String
-  content           String
+  content           String?
   createdAt	        DateTime  @default(now())
   updatedAt	        DateTime  @updatedAt
 
@@ -50,7 +50,15 @@ model Post {
   authorId          Int
   @@index([authorId])
 
-  originalDate      String
+  originalDate      DateTime?
+  originalYear      Int
+  originalMonth     Int
+  originalDay       Int
+  orignnalHour      Int
+  originalMinute    Int
+  originalLocation  String?
+
+  token             String    @unique
   isVideo           Boolean   @default(false)
   imageCount        Int       @default(0)
 

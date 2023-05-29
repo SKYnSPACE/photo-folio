@@ -9,6 +9,8 @@ const handler = async (
       url: string | string[];
       fileName: string | string[];
       extension: string | string[];
+      token: string;
+      fileIndex: number;
     } | null;
     error: string | null;
   }>
@@ -25,11 +27,11 @@ const handler = async (
 
 
   try {
-    const { fields, files } = await parseForm(req);
+    const { fields, files, token, fileIndex } = await parseForm(req);
 
     const file = files.media;
     const url = Array.isArray(file) ? file.map((f) => f.filepath) : file.filepath;
-
+    console.log(token, fileIndex);
     // let url = files.filepath;
     const newFilename = Array.isArray(file) ? file.map((f) => f.newFilename) : file.newFilename;
     const indexOfLastDot = newFilename.lastIndexOf('.');
@@ -43,6 +45,8 @@ const handler = async (
         url,
         fileName,
         extension,
+        token,
+        fileIndex,
       },
       error: null,
     });
