@@ -68,7 +68,7 @@ export default function Create() {
       imageToken: uploadedImagesToken,
       fileIndex: uploadedFileIndex,
     });
-    scrollToTop();
+    // scrollToTop();
 
   }
 
@@ -212,6 +212,8 @@ export default function Create() {
       //TODO: FLUSH DRAFTS (DB ONLY) WHEN PRESSED SAVE. (useMutation)
       clearTempRecord({ token: uploadedImagesToken });
       // router.replace(`/products/${data.product.id}`);
+
+      //TODO: REDIRECT WHEN POST UPLOADED. AFTER SET-TIMEOUT or something..
       router.replace(`/`);
 
     }

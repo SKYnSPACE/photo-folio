@@ -21,7 +21,16 @@ async function handler(
       session: { user },
     } = req;
 
-    console.log(req.body)
+    const dateTime = new Date(`${date}T${time}`);
+    
+    const originalDate = dateTime.toISOString();
+    const originalYear = dateTime.getFullYear();
+    const originalMonth = dateTime.getMonth() + 1; // Adding 1 since getMonth() returns zero-based month
+    const originalDay = dateTime.getDate();
+    const originalHour = dateTime.getHours();
+    const originalMinute = dateTime.getMinutes();
+
+    console.log(originalDate, originalYear, originalMonth, originalDay, originalHour, originalMinute);
 
     if(imageToken){
       console.log(imageToken)
@@ -42,7 +51,31 @@ async function handler(
       where: { id: user?.id },
     });
 
-    res.json({ ok: true, })
+
+    try {
+      const newPost = await client.post.create({
+        data: {
+          title,
+          content: descriptions,
+          author: { connect: { id: currentUser.id } },
+          originalDate,
+          originalYear,
+          originalMonth,
+          originalDay,
+          originalHour,
+          originalMinute,
+          token: imageToken,
+          imageCount: fileIndex,
+        },
+      });
+
+      res.json({ ok: true, data: newPost })
+    } catch (error) {
+      console.error(error);
+      res.json({ ok: false, })
+    }
+
+    
   }
 }
 

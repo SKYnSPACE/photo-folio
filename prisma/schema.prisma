@@ -56,7 +56,7 @@ model Post {
   originalYear      Int
   originalMonth     Int
   originalDay       Int
-  orignnalHour      Int
+  originalHour      Int
   originalMinute    Int
   originalLocation  String?
 
