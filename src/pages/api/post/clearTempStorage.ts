@@ -12,12 +12,11 @@ async function handler(
 
 
   const { query: { token } } = req;
-  console.log(token)
 
   const filepath = join(process.cwd(), `/public/uploads/images/temp/${token}`);
   fs.access(filepath,
     fs.constants.F_OK, (err) => {
-      if (err) return console.log("Cannot remove.")
+      if (err) return console.log("Cannot remove temp file.")
     });
 
   // fs.unlink(filepath, (err) => { err ?
@@ -26,7 +25,7 @@ async function handler(
 
   fs.rm(filepath, { recursive: true, force: true }, (err) => {
     err ?
-      console.log(err) : console.log("File removed.")
+      console.log(err) : console.log("Temp file removed.")
   });
 
   res.json({ ok: true, })

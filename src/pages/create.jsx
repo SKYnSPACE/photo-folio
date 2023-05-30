@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+
 import { useEffect, useState } from 'react';
 import { Switch } from '@headlessui/react'
 
@@ -31,6 +33,8 @@ const scrollToTop = () => {
 
 
 export default function Create() {
+  const router = useRouter();
+
   const { data: seminarData, error: seminarDataError, isLoading: seminarDataIsLoading, mutate: mutateSeminarData } = useSWR(`/api/seminar`);
 
   const { register, setValue, watch, handleSubmit } = useForm();
@@ -40,7 +44,11 @@ export default function Create() {
   const timeStampDate = watch("date");
   const timeStampTime = watch("time");
 
-  const [createPost, { loading: createPostLoading, data: createPostData, error: createPostError }] = useMutation("/api/create");
+  const [saveTempRecord, { loading: saveTempRecordLoading, data: saveTempRecordData, error: saveTempRecordError }] = useMutation("/api/post/saveTempRecord");
+  const [clearTempRecord, { loading: clearTempRecordLoading, data: clearTempRecordData, error: clearTempRecordError }] = useMutation("/api/post/clearTempRecord");
+  const [resetUserTemp, { loading: resetUserTempLoading, data: resetUserTempData, error: resetUserTempError }] = useMutation("/api/post/resetUserTemp");
+
+  const [createPost, { loading: createPostLoading, data: createPostData, error: createPostError }] = useMutation("/api/post/create");
 
   const [progress, setProgress] = useState(0);
   const [remaining, setRemaining] = useState(0);
@@ -61,6 +69,7 @@ export default function Create() {
       fileIndex: uploadedFileIndex,
     });
     scrollToTop();
+
   }
 
   const onInvalid = (errors) => {
@@ -72,7 +81,7 @@ export default function Create() {
       const deleteResponse = await fetch(`/api/delete?token=${uploadedImagesToken}`, {
         method: 'DELETE'
       })
-      console.log(deleteResponse)
+      // console.log(deleteResponse)
     }
   };
 
@@ -90,7 +99,7 @@ export default function Create() {
       const file = fileInput.files[i];
 
       if (!file.type.startsWith("image")) {
-        alert(`File idx: ${i+1} is invalid. Must be a common image file.`);
+        alert(`File idx: ${i + 1} is invalid. Must be a common image file.`);
         continue;
       }
 
@@ -105,10 +114,11 @@ export default function Create() {
 
     // TODO: REMOVE file from the server when uploadedImagesToken is not null 
     if (uploadedImagesToken) {
-      const deleteResponse = await fetch(`/api/delete?token=${uploadedImagesToken}`, {
+      const deleteResponse = await fetch(`/api/post/clearTempStorage?token=${uploadedImagesToken}`, {
         method: 'DELETE'
       })
-      console.log(deleteResponse)
+      clearTempRecord({ token: uploadedImagesToken });
+      // console.log(deleteResponse)
     }
 
     /** Uploading files to the server */
@@ -139,10 +149,10 @@ export default function Create() {
         data: { data },
       } = await axios.post("/api/upload", formData, options);
 
-      console.log("File was uploaded successfylly:", data);
+      // console.log("File was uploaded successfylly:", data);
       setUploadedImagesToken(data?.token);
       setUploadedFileIndex(data?.fileIndex);
-      // saveDraft({ alias: seminarData?.mySeminarSubmission?.alias, token });
+      saveTempRecord({ token: data?.token });
 
     } catch (e) {
       console.error(e);
@@ -158,15 +168,25 @@ export default function Create() {
   useEffect(() => {
     const handleTabClose = event => {
       event.preventDefault();
-  
-      console.log('beforeunload event triggered');
-  
+
+      // console.log('beforeunload event triggered');
+
       return (event.returnValue =
         'Are you sure you want to exit?');
     };
-  
+
     window.addEventListener('beforeunload', handleTabClose);
-  
+
+    resetUserTemp();
+    // ClearAllUserTemp: Clear Server + DB Temp based on a user.
+    // ClearTempRecord: Clear DB Temp only based on a token.
+    // ClearTempStorage: Clear Server Temp only based on a token.
+
+    //TODO: FLUSH DRAFTS (DB+STORAGE) WHEN TEMPORARYDATA EXISTS (useMutation)
+
+
+
+
     return () => {
       window.removeEventListener('beforeunload', handleTabClose);
     };
@@ -187,17 +207,15 @@ export default function Create() {
   //   };
   // }, [saved, uploadedImagesToken]);
 
-
   useEffect(() => {
-    if (seminarData?.mySeminarSubmission) {
-
-      setValue("title", seminarData.mySeminarSubmission.title);
-      setValue("descriptions", seminarData.mySeminarSubmission.descriptions);
-      setValue("category", seminarData.mySeminarSubmission.category);
-      setValue("tags", seminarData.mySeminarSubmission.tags);
+    if (createPostData?.ok) {
+      //TODO: FLUSH DRAFTS (DB ONLY) WHEN PRESSED SAVE. (useMutation)
+      clearTempRecord({ token: uploadedImagesToken });
+      // router.replace(`/products/${data.product.id}`);
+      router.replace(`/`);
 
     }
-  }, [seminarData]);
+  }, [createPostData, router]);
 
 
   useEffect(() => {
@@ -414,7 +432,7 @@ export default function Create() {
                           {uploadedImagesToken ?
                             <p>
                               <span>Image preview: </span>
-                              </p>
+                            </p>
                             : <></>}
                         </div>
                       }
