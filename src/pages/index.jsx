@@ -3,7 +3,26 @@ import Image from 'next/image'
 import Link from 'next/link'
 import clsx from 'clsx'
 
+import ImageGallery from 'react-image-gallery';
+import "react-image-gallery/styles/css/image-gallery.css";
+
+
 import { FormattedDate } from '@/components/FormattedDate'
+
+const images = [
+  {
+    original: '/uploads/images/jC_T8T-3Wq361OWN/1.png',
+    thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/1.png',
+  },
+  {
+    original: '/uploads/images/jC_T8T-3Wq361OWN/2.png',
+    thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/2.png',
+  },
+  {
+    original: '/uploads/images/jC_T8T-3Wq361OWN/3.png',
+    thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/3.png',
+  },
+];
 
 function ContentWrapper({ className, children }) {
   return (
@@ -57,8 +76,9 @@ export default function Home() {
   const children = () => {
     return (<div className='w-full'>
 
-      <img src="https://images.hdqwalls.com/download/dark-blue-evening-rl-2560x1440.jpg"
-      />
+      {/* <img src="https://images.hdqwalls.com/download/dark-blue-evening-rl-2560x1440.jpg"/> */}
+
+      <ImageGallery items={images} />
 
       <div className="w-full top-1/3 right-0 mr-12 flex justify-end ">
         <figure className="relative isolate pt-6 sm:pt-12">
@@ -80,20 +100,20 @@ export default function Home() {
             </p>
           </blockquote>
           <p>
-              Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-            </p>
-            <p>
-              Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-            </p>
-            <p>
-              Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-            </p>
-            <p>
-              Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-            </p>
-            <p>
-              Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-            </p>
+            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+          </p>
+          <p>
+            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+          </p>
+          <p>
+            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+          </p>
+          <p>
+            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+          </p>
+          <p>
+            Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+          </p>
         </figure>
       </div>
     </div>)
@@ -139,7 +159,7 @@ export default function Home() {
       </div>
     </article>
 
-    
+
 
   )
 
