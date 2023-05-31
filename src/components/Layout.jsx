@@ -110,6 +110,10 @@ export default function Layout({ children }) {
         </>
       }
       {
+        router.pathname.startsWith('/posts/') &&
+        <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
+      }
+      {
         router.pathname !== '/enter' &&
         <ActionIcons />
       }

@@ -24,8 +24,9 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx"
-  ],
+    "**/*.tsx",
+// "src/pages/posts/[year]/[month].jsx"
+],
   "exclude": [
     "node_modules"
   ]
