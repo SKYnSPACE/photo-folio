@@ -1,3 +1,5 @@
+import { useRouter } from "next/router";
+
 import { useState, useEffect } from 'react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { Combobox } from '@headlessui/react'
@@ -23,18 +25,31 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-export function YearSelector() {
-  const [query, setQuery] = useState('')
-  const [selectedYear, setSelectedYear] = useState(years[0])
+export function YearSelector({ years }) {
+  const router = useRouter();
+  const { year, month } = router.query;
 
-  const filteredPeople =
+  const [query, setQuery] = useState('')
+  const [selectedYear, setSelectedYear] = useState(year ? years.find((item) => item.id === year) : null);
+
+  const filteredYears =
     query === ''
       ? years
-      : years.filter((year) => {
-          return year.id.toLowerCase().includes(query.toLowerCase())
-        })
+      : years?.filter((year) => {
+        return year.id.toLowerCase().includes(query.toLowerCase())
+      })
 
-        useEffect(()=>{console.log(selectedYear), [selectedYear]})
+  useEffect(() => {
+    // console.log(selectedYear)
+    if (selectedYear && +selectedYear.id)
+      router.replace(`/posts/${selectedYear.id}/1`);
+  }
+    , [selectedYear])
+
+    useEffect(()=>{
+      setSelectedYear(year ? years.find((item) => item.id === year) : null);
+    },[year])
+
 
   return (
     <Combobox as="div" value={selectedYear} onChange={setSelectedYear}>
@@ -49,9 +64,9 @@ export function YearSelector() {
           <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
         </Combobox.Button>
 
-        {filteredPeople.length > 0 && (
+        {filteredYears?.length > 0 && (
           <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredPeople.map((year) => (
+            {filteredYears.map((year) => (
               <Combobox.Option
                 key={year.id}
                 value={year}

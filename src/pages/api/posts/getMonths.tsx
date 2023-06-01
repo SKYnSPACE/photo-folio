@@ -3,25 +3,14 @@ import withHandler, { ResponseType } from "@/libs/backend/withHandler";
 import client from "@/libs/backend/client";
 import { withApiSession } from "@/libs/backend/withSession";
 
+const getMonthName = (monthNumber) => {
+  const monthNames = [
+    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+  ];
 
-async function getPostCounts(year) {
-  let whereCondition = {};
-  if (year) {
-    whereCondition = { originalYear: parseInt(year) };
-  } else {
-    whereCondition = { originalYear: { gte: 2010, lte: 2023 } };
-  }
-
-  const postCounts = await client.post.groupBy({
-    by: ['originalYear'],
-    _count: {
-      _all: true,
-    },
-    where: whereCondition,
-  });
-
-  return postCounts;
-}
+  return monthNames[monthNumber - 1] || '';
+};
 
 async function handler(
   req: NextApiRequest,
@@ -33,7 +22,9 @@ async function handler(
     const { query: { year },
     session: { user } } = req;
 
-    console.log(year)
+    if(!year){
+      return res.status(403).json({ ok: false, error: "Year is not given." })
+    }
 
     const currentUser = await client.user.findUnique({
       where: { id: user.id },
@@ -44,11 +35,26 @@ async function handler(
       return res.status(403).json({ ok: false, error: "Not allowed to access the data." })
     }
 
-    const postCounts = await getPostCounts(year);
+    const posts = await client.post.findMany({
+      where: {
+        originalYear: +year,
+      },
+      orderBy: {
+        originalMonth: 'asc',
+      },
+    });
+
+    const months = Array.from({ length: 12 }, (_, index) => {
+      const monthName = getMonthName(index + 1);
+      const matchingPosts = posts.filter((post) => post.originalMonth === index + 1);
+      const selectable = matchingPosts.length > 0;
+      return { id: monthName.toUpperCase(), selectable };
+    });
+
 
     res.json({
       ok: true,
-      postCounts,
+      months,
     });
   }
 }

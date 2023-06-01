@@ -7,6 +7,7 @@ import { Login } from '@/components/Login'
 import { StarField } from '@/components/StarField'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { ActionIcons } from "@/components/ActionIcons";
+import { PostIndex } from "@/components/PostIndex";
 
 function Timeline() {
   let id = useId()
@@ -105,13 +106,11 @@ export default function Layout({ children }) {
       }
       {
         router.pathname === '/' &&
-        <>
-          <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
-        </>
+          <FixedSidebar main={<PostIndex />} footer={<IntroFooter />} />
       }
       {
         router.pathname.startsWith('/posts/') &&
-        <FixedSidebar main={<Intro />} footer={<IntroFooter />} />
+        <FixedSidebar main={<PostIndex />} footer={<IntroFooter />} />
       }
       {
         router.pathname !== '/enter' &&

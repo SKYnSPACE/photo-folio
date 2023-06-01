@@ -165,7 +165,7 @@ export default function PostsByYearMonth() {
         ))) :
         <ContentWrapper className="typography">
 
-          <div>No posts available</div>
+          <div ref={heightRef}>No posts available</div>
 
         </ContentWrapper>
       }
