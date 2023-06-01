@@ -3,6 +3,26 @@ import withHandler, { ResponseType } from "@/libs/backend/withHandler";
 import client from "@/libs/backend/client";
 import { withApiSession } from "@/libs/backend/withSession";
 
+
+async function getPostCounts(year) {
+  let whereCondition = {};
+  if (year) {
+    whereCondition = { originalYear: parseInt(year) };
+  } else {
+    whereCondition = { originalYear: { gte: 2010, lte: 2023 } };
+  }
+
+  const postCounts = await client.post.groupBy({
+    by: ['originalYear'],
+    _count: {
+      _all: true,
+    },
+    where: whereCondition,
+  });
+
+  return postCounts;
+}
+
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ResponseType>
@@ -10,10 +30,10 @@ async function handler(
 
   if (req.method === "GET") {
 
-    const { query: { year, month },
+    const { query: { year },
     session: { user } } = req;
 
-    // console.log(year, month)
+    console.log(year)
 
     const currentUser = await client.user.findUnique({
       where: { id: user.id },
@@ -24,34 +44,18 @@ async function handler(
       return res.status(403).json({ ok: false, error: "Not allowed to access the data." })
     }
 
-    const posts = await client.post.findMany({
-      where: {
-        originalYear: +year,
-        originalMonth: +month,
-      },
-      orderBy: {
-        originalDate: 'desc',
-      },
-    });
-
-    // console.log(posts)
+    const postCounts = await getPostCounts(year);
 
     res.json({
       ok: true,
-      posts,
+      postCounts,
     });
   }
-
-  if (req.method === "POST") {
-    res.json({ ok: false });
-  }
-
-  // res.json({ok: true,})
 }
 
 export default withApiSession(
   withHandler({
-    methods: ["GET", "POST"],
+    methods: ["GET"],
     handler,
   })
 );

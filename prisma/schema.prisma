@@ -44,7 +44,7 @@ model Token {
 model Post {
   id                Int       @id @default(autoincrement())
   title             String
-  content           String?
+  content           String?   @db.VarChar(1000)
   createdAt	        DateTime  @default(now())
   updatedAt	        DateTime  @updatedAt
 
@@ -60,7 +60,7 @@ model Post {
   originalMinute    Int
   originalLocation  String?
 
-  token             String    @unique
+  token             String?   @unique
   isVideo           Boolean   @default(false)
   imageCount        Int       @default(0)
 
