@@ -30,8 +30,19 @@ const handler = async (
     const { fields, files, token, fileIndex } = await parseForm(req);
 
     const file = files.media;
+    // console.log(files)
+
+    if (!file) {
+      res.status(400).json({
+        ok: false,
+        data: null,
+        error: "Filed to upload or convert files.",
+      });
+      return;
+    }
+
     const url = Array.isArray(file) ? file.map((f) => f.filepath) : file.filepath;
-    console.log(token, fileIndex);
+    // console.log(token, fileIndex);
     // let url = files.filepath;
     const newFilename = Array.isArray(file) ? file.map((f) => f.newFilename) : file.newFilename;
     const indexOfLastDot = newFilename.lastIndexOf('.');

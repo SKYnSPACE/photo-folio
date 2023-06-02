@@ -25,7 +25,7 @@ export const postMail = async (
     let info = await transporter.sendMail({
       from: '"Seongheon Lee ✈️" <skynspace@naver.com>', // sender address
       to: `${sendTo}`, // list of receivers
-      subject: `[ASCL Portal] ${title}`, // Subject line
+      subject: `[PHOTO-FOLIO] ${title}`, // Subject line
       text: `${textBody}`, // plain text body
       html: `${htmlBody}`, // html body
     });

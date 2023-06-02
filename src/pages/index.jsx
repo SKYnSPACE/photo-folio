@@ -10,18 +10,18 @@ import "react-image-gallery/styles/css/image-gallery.css";
 import { FormattedDate } from '@/components/FormattedDate'
 
 const images = [
-  {
-    original: '/uploads/images/jC_T8T-3Wq361OWN/1.png',
-    thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/1.png',
-  },
-  {
-    original: '/uploads/images/jC_T8T-3Wq361OWN/2.png',
-    thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/2.png',
-  },
-  {
-    original: '/uploads/images/jC_T8T-3Wq361OWN/3.png',
-    thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/3.png',
-  },
+  // {
+  //   original: '/uploads/images/jC_T8T-3Wq361OWN/1.png',
+  //   thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/1.png',
+  // },
+  // {
+  //   original: '/uploads/images/jC_T8T-3Wq361OWN/2.png',
+  //   thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/2.png',
+  // },
+  // {
+  //   original: '/uploads/images/jC_T8T-3Wq361OWN/3.png',
+  //   thumbnail: '/uploads/images/jC_T8T-3Wq361OWN/3.png',
+  // },
 ];
 
 function ContentWrapper({ className, children }) {

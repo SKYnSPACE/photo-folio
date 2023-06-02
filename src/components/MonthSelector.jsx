@@ -53,7 +53,7 @@ export function MonthSelector({months}) {
 
   useEffect(() => {
     if(months && months.length > 0){
-      setSelectedMonth(months[0]);
+      setSelectedMonth(months[month-1]);
     }
   },[months]);
 

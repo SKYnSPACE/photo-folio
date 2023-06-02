@@ -63,8 +63,10 @@ function generateImagesArray(post) {
   const images = [];
   for (let i = 1; i <= post.imageCount; ++i) {
     const image = {
-      original: `/uploads/images/${post.token}/${i}.png`,
-      thumbnail: `/uploads/images/${post.token}/${i}.png`,
+      original: `/uploads/images/${post.token}/${i}.jpg`,
+      thumbnail: `/uploads/images/${post.token}/${i}.jpg`,
+      // thumbnailHeight: 10,
+      // thumbnailWidth: 10,
     };
     images.push(image);
   }

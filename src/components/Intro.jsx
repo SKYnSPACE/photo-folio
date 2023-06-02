@@ -8,6 +8,8 @@ import { YearSelector } from '@/components/YearSelector'
 import { MonthSelector } from '@/components/MonthSelector'
 import { Calendar } from '@/components/Calendar'
 
+import { FaPaperPlane } from 'react-icons/fa'
+
 function BookIcon(props) {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor" {...props}>
@@ -88,7 +90,7 @@ export function IntroFooter() {
   return (
     <p className="flex items-baseline gap-x-2 text-[0.8125rem]/6 text-gray-500">
       Brought to you by{' '}
-      <IconLink href="#" icon={TwitterIcon} compact large>
+      <IconLink href="#" icon={FaPaperPlane} compact>
         SKYnSPACE
       </IconLink>
     </p>

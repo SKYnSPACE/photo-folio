@@ -9,6 +9,8 @@ import { useForm } from 'react-hook-form';
 
 import { format, parseISO } from "date-fns";
 
+import { Gallery } from "react-grid-gallery";
+
 
 import { PaperClipIcon, ExclamationTriangleIcon, StarIcon } from '@heroicons/react/20/solid';
 import { CalendarDaysIcon, ClockIcon, ArrowLongRightIcon } from '@heroicons/react/24/outline';
@@ -35,8 +37,6 @@ const scrollToTop = () => {
 export default function Create() {
   const router = useRouter();
 
-  const { data: seminarData, error: seminarDataError, isLoading: seminarDataIsLoading, mutate: mutateSeminarData } = useSWR(`/api/seminar`);
-
   const { register, setValue, watch, handleSubmit } = useForm();
   const titleLength = watch("title")?.length;
   const descriptionsLength = watch("descriptions")?.length;
@@ -58,6 +58,7 @@ export default function Create() {
 
   const [saved, setSaved] = useState(false);
 
+  const [previewImages, setPreviewImages] = useState([]);
 
   const [isNotify, setIsNotify] = useState(false);
   const [message, setMessage] = useState({ type: 'success', title: 'Confirmed!', details: 'Test message initiated.', });
@@ -214,15 +215,27 @@ export default function Create() {
       // router.replace(`/products/${data.product.id}`);
 
       //TODO: REDIRECT WHEN POST UPLOADED. AFTER SET-TIMEOUT or something..
-      router.replace(`/`);
+      // router.replace(`/`);
+      router.back();
 
     }
   }, [createPostData, router]);
 
 
   useEffect(() => {
+    if (uploadedImagesToken && uploadedFileIndex) {
+      setPreviewImages(
+        Array.from({ length: uploadedFileIndex },
+          (_, idx) => ({ src: `/uploads/images/temp/${uploadedImagesToken}/${idx + 1}.jpg` }))
+      );
+    }
+    // console.log(previewImages)
+  }, [uploadedImagesToken, uploadedFileIndex]);
+
+
+  useEffect(() => {
     setTimeout(() => {
-      mutateSeminarData();
+      // mutateSeminarData();
     }, 3000);
   }, [createPostLoading]);
 
@@ -418,7 +431,7 @@ export default function Create() {
                           />
                         </label>
                         {/* <p className="pl-1">or drag and drop</p> */}
-                        <p className="pl-1">(up to 200MB)</p>
+                        <p className="pl-1">(up to 20 files.)</p>
                       </div>
                       {/* <p className="text-xs text-gray-500">up to 200MB</p> */}
 
@@ -431,11 +444,12 @@ export default function Create() {
                           </p>
                         </div>
                         : <div className="text-sm text-center text-gray-400">
-                          <span>Press save to complete the post.</span>
+                          <span>Press post to complete.</span>
                           {uploadedImagesToken ?
-                            <p>
+                            <div>
                               <span>Image preview: </span>
-                            </p>
+                              <Gallery images={previewImages} rowHeight={100} />
+                            </div>
                             : <></>}
                         </div>
                       }
@@ -468,6 +482,7 @@ export default function Create() {
               className="rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
               onClick={(e) => {
                 scrollToTop();
+                router.back();
               }}
             >
               Cancel
@@ -475,10 +490,10 @@ export default function Create() {
             <button
               type="submit"
               className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-sky-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
-              disabled={createPostLoading}
+              disabled={(createPostLoading || saveTempRecordLoading || (progress !=0 && progress < 100))}
             >
 
-              {createPostLoading ?
+              {(createPostLoading || saveTempRecordLoading || (progress !=0 && progress < 100)) ?
                 <span className="flex items-center text-center">
                   <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-sky-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
