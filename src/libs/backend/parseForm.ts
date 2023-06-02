@@ -2,7 +2,10 @@ import type { NextApiRequest } from "next";
 import mime from "mime";
 import { join } from "path";
 import formidable from "formidable";
-import { mkdir, stat } from "fs/promises";
+import { mkdir, rename, stat } from "fs/promises";
+import path from "path";
+
+import sharp from 'sharp';
 
 import cryptoRandomString from 'crypto-random-string';
 
@@ -70,9 +73,50 @@ export const parseForm = async (
       },
     });
 
-    form.parse(req, function (err, fields, files) {
+    form.parse(req, async function (err, fields, files) {
       if (err) reject(err);
-      else resolve({ fields, files, token, fileIndex });
+      else {
+        // Convert files to png here
+        for (const key in files) {
+          const fileOrFiles = files[key];
+        
+          const processFiles = async (file) => {
+            if (file && file.filepath) {
+              console.log(file.filepath);
+        
+              const parsedPath = path.parse(file.filepath);
+              
+              // Check if the file is already a .png
+              if(parsedPath.ext.toLowerCase() !== '.png') {
+                const pngFilename = path.format({
+                  ...parsedPath,
+                  base: undefined, // Ignore base to respect name and ext
+                  ext: '.png', // Change the extension to .png
+                });
+        
+                await sharp(file.filepath)
+                  .png()
+                  .toFile(pngFilename);
+        
+                // Delete or move the original file if necessary
+                // Here, we rename the original file to the pngFilename
+                await rename(file.filepath, pngFilename);
+        
+                // Update file path in the files object
+                file.filepath = pngFilename;
+              }
+            }
+          }
+        
+          if (Array.isArray(fileOrFiles)) {
+            await Promise.all(fileOrFiles.map(file => processFiles(file)));
+          } else {
+            await processFiles(fileOrFiles);
+          }
+        }
+  
+        resolve({ fields, files, token, fileIndex });
+      }
     });
   });
 };

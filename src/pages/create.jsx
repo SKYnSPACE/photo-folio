@@ -414,6 +414,7 @@ export default function Create() {
                             type="file" className="sr-only"
                             onChange={onSelectedImageFiles}
                             multiple
+                            accept="image/*"
                           />
                         </label>
                         {/* <p className="pl-1">or drag and drop</p> */}

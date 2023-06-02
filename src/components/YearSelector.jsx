@@ -40,8 +40,7 @@ export function YearSelector({ years }) {
       })
 
   useEffect(() => {
-    // console.log(selectedYear)
-    if (selectedYear && +selectedYear.id)
+    if (selectedYear && +selectedYear.id && year !== selectedYear.id) 
       router.replace(`/posts/${selectedYear.id}/1`);
   }
     , [selectedYear])

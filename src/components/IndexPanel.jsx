@@ -48,16 +48,18 @@ function TwitterIcon(props) {
   )
 }
 
-export function PostIndex() {
+export function Index() {
   const router = useRouter();
   const { year, month } = router.query;
   
   const fetcher = (url) => fetch(url).then((response) => response.json());
   const { data: yearsData , error: yearsError, isLoading: yearsIsLoading } = useSWR('/api/posts/getYears', fetcher);
   const { data: monthsData , error: monthsError, isLoading: monthsIsLoading } = useSWR(year ? `/api/posts/getMonths?year=${year}`:null, fetcher);
+  const { data: daysData, error: daysError, isLoading: daysIsLoading } = useSWR(year && month ? `/api/posts/getDays?year=${year}&month=${month}`:null, fetcher);
 
   const years = yearsData?.years || [];
   const months = monthsData?.months || [];
+  const days = daysData?.daysArray || [];
 
   return (
     <>
@@ -79,7 +81,7 @@ export function PostIndex() {
       <MonthSelector months={months}/>
 
 
-      <Calendar />
+      <Calendar days={days}/>
     </>
   )
 }

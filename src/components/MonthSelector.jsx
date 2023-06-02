@@ -27,30 +27,55 @@ const getMonthName = (monthNumber) => {
   return monthNames[monthNumber - 1] || '';
 };
 
+const defaultMonth = { id: 'default', selectable: false };
+
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
 export function MonthSelector({months}) {
-  console.log(months)
+  // console.log(months)
   const router = useRouter();
   const { year, month } = router.query;
   // const [selectedMonth, setSelectedMonth] = useState(
   //   month ? months.find((item) => item.id === getMonthName(month)) : "default"
   // );
-  const [selectedMonth, setSelectedMonth] = useState();
+  const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
 
 
+  // useEffect(() => {
+  //   if(months){
+  //     console.log(months[0])
+  //     setSelectedMonth(months[0]);
+  //   }
+  // },[months]);
 
   useEffect(() => {
-    // console.log(selectedMonth)
-    if (selectedMonth && selectedMonth.id)
-    {
-      const monthInNumber = months.findIndex((item) => item.id === selectedMonth.id) + 1;
-      router.replace(`/posts/${year}/${monthInNumber}`);
+    if(months && months.length > 0){
+      setSelectedMonth(months[0]);
     }
-  }
-    , [selectedMonth])
+  },[months]);
+
+
+  // useEffect(() => {
+  //   // console.log(selectedMonth)
+  //   if (selectedMonth && selectedMonth.id)
+  //   {
+  //     const monthInNumber = months.findIndex((item) => item.id === selectedMonth.id) + 1;
+  //     router.replace(`/posts/${year}/${monthInNumber}`);
+  //   }
+  // }
+  //   , [selectedMonth])
+
+    useEffect(() => {
+      if (selectedMonth && selectedMonth.id && selectedMonth.id !== 'default')
+      {
+        const monthInNumber = months.findIndex((item) => item.id === selectedMonth.id) + 1;
+        router.replace(`/posts/${year}/${monthInNumber}`);
+      }
+    }
+      , [selectedMonth])
 
     
 
@@ -59,9 +84,11 @@ export function MonthSelector({months}) {
     //   setSelectedMonth( month ? months.find((item) => item.id === getMonthName(month)) : "default");
     // },[year, month])
     
-    useEffect(() => {
-      setSelectedMonth(month ? months.find((item) => item.id === getMonthName(month)) : undefined);
-    }, [year, month]);
+    // useEffect(() => {
+    //   // console.log(year,month);
+    //   console.log(months[0])
+    //   setSelectedMonth(month ? months.find((item) => item.id === getMonthName(month)) : months[0]);
+    // }, [year]);
 
     return (
       <div className="my-8">
@@ -69,9 +96,10 @@ export function MonthSelector({months}) {
           <RadioGroup.Label className="sr-only">Choose an option</RadioGroup.Label>
           <div className="grid grid-cols-6 gap-2 sm:grid-cols-6">
             {/* Invisible default option */}
-            <RadioGroup.Option key="default" value={undefined} className="hidden">
-              <RadioGroup.Label as="span"></RadioGroup.Label>
-            </RadioGroup.Option>
+            <RadioGroup.Option key={"default"} value={defaultMonth} className="hidden">
+            <RadioGroup.Label as="span"></RadioGroup.Label>
+          </RadioGroup.Option>
+
   
             {months?.map((option) => (
               <RadioGroup.Option
