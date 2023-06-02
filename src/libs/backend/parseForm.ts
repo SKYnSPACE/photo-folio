@@ -13,14 +13,14 @@ export const FormidableError = formidable.errors.FormidableError;
 
 export const parseForm = async (
   req: NextApiRequest
-): Promise<{ fields: formidable.Fields; files: formidable.Files; token: string, fileIndex: number}> => {
+): Promise<{ fields: formidable.Fields; files: formidable.Files; token: string, fileIndex: number }> => {
   return await new Promise(async (resolve, reject) => {
-    const token = cryptoRandomString({length: 16, type:'url-safe'});
+    const token = cryptoRandomString({ length: 16, type: 'url-safe' });
     const uploadDir = join(
       process.env.ROOT_DIR || process.cwd(),
       `/public/uploads/images/temp/${token}`
     );
-    
+
     try {
       await stat(uploadDir);
     } catch (e: any) {
@@ -61,9 +61,8 @@ export const parseForm = async (
       uploadDir,
       filename: (_name, _ext, part) => {
         const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const filename = `${++fileIndex}.${
-          mime.getExtension(part.mimetype || "") || "unknown"
-        }`;
+        const filename = `${++fileIndex}.${mime.getExtension(part.mimetype || "") || "unknown"
+          }`;
         return filename;
       },
       filter: (part) => {
@@ -71,52 +70,54 @@ export const parseForm = async (
           part.name === "media" && (part.mimetype?.includes("image") || false)
         );
       },
+      // Keep the original extension
+      keepExtensions: true,
     });
 
-    form.parse(req, async function (err, fields, files) {
-      if (err) reject(err);
-      else {
-        // Convert files to png here
-        for (const key in files) {
-          const fileOrFiles = files[key];
+    const files: formidable.Files = {};
+
+
+    form.on('file', async function(name, file) {
+      console.log(name);
+      console.log(file);
+      
+      if (name === "media") {
+        const parsedPath = path.parse(file.filepath);
         
-          const processFiles = async (file) => {
-            if (file && file.filepath) {
-              console.log(file.filepath);
-        
-              const parsedPath = path.parse(file.filepath);
-              
-              // Check if the file is already a .png
-              if(parsedPath.ext.toLowerCase() !== '.png') {
-                const pngFilename = path.format({
-                  ...parsedPath,
-                  base: undefined, // Ignore base to respect name and ext
-                  ext: '.png', // Change the extension to .png
-                });
-        
-                await sharp(file.filepath)
-                  .png()
-                  .toFile(pngFilename);
-        
-                // Delete or move the original file if necessary
-                // Here, we rename the original file to the pngFilename
-                await rename(file.filepath, pngFilename);
-        
-                // Update file path in the files object
-                file.filepath = pngFilename;
-              }
-            }
+        if (parsedPath.ext.toLowerCase() !== '.png') {
+          const pngFilename = path.format({
+            ...parsedPath,
+            base: undefined, // Ignore base to respect name and ext
+            ext: '.png', // Change the extension to .png
+          });
+    
+          // Convert and save file to png
+          try {
+            await sharp(file.filepath)
+              .png()
+              .toFile(pngFilename);
+    
+            // Rename the original file to the pngFilename
+            await rename(file.filepath, pngFilename);
+    
+            // Update file path in the files object
+            file.filepath = pngFilename;
+            // Add file to the files object
+            files[name] = file;
+          } catch(e) {
+            reject(e);
           }
-        
-          if (Array.isArray(fileOrFiles)) {
-            await Promise.all(fileOrFiles.map(file => processFiles(file)));
-          } else {
-            await processFiles(fileOrFiles);
-          }
+        } else {
+          // If the file is already a png, add it to the files object
+          files[name] = file;
         }
-  
-        resolve({ fields, files, token, fileIndex });
       }
     });
+    
+    form.parse(req, function (err, fields, _files) {
+      if (err) reject(err);
+      else resolve({ fields, files, token, fileIndex });
+    });
+
   });
 };
