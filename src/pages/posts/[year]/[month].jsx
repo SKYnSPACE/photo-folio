@@ -183,7 +183,7 @@ export default function PostsByYearMonth() {
               </svg>
               <blockquote className="text-xl font-semibold leading-8 text-white sm:text-2xl sm:leading-9">
                 <p>
-                  So far, there are no moments available in this month/year.
+                  So far, no moments available in this month/year.
                 </p>
               </blockquote>
             </figure>
